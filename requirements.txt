@@ -1,0 +1,4 @@
+httpx~=0.16.1
+beautifulsoup4~=4.9.3
+aiogram~=2.11.2
+sentry-sdk~=0.20.1
