@@ -18,7 +18,7 @@ class API(ABC):
 
     @property
     def headers(self) -> dict[str, Any]:
-        return {'Referer': 'https://www.platform.com/'}
+        return {}
 
     @property
     @abstractmethod
