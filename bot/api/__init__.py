@@ -8,6 +8,8 @@ from aiogram.types import Message
 from bs4 import BeautifulSoup
 from httpx import HTTPStatusError
 
+from bot.data import VideoData
+
 
 class API(ABC):
     client = httpx.AsyncClient(
@@ -30,7 +32,7 @@ class API(ABC):
     def regexp_key(self) -> str:
         return 'key'
 
-    async def handle_message(self, message: Message) -> List[bytes]:
+    async def handle_message(self, message: Message) -> List[VideoData]:
         urls = []
         for e in message.entities:
             for link in self.links:
@@ -44,7 +46,7 @@ class API(ABC):
             sentry_sdk.capture_exception(ex)
             return []
 
-    async def download_video(self, url: str) -> Optional[bytes]:
+    async def download_video(self, url: str) -> VideoData:
         page = await self.client.get(url)
         soup = BeautifulSoup(page.content, 'html.parser')
         if data := soup(text=re.compile(self.regexp_key)):
@@ -52,8 +54,8 @@ class API(ABC):
                 if link := self._parse_data(script):
                     video = await self.client.get(link, headers=self.headers)
                     video.raise_for_status()
-                    return video.content
-                return None
+                    return VideoData(link, video.content)
+                return VideoData()
 
     @abstractmethod
     def _parse_data(self, script: str) -> str:
