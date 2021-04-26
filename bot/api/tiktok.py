@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Optional
 
 from bot.api import API
 
@@ -18,6 +18,11 @@ class TikTokAPI(API):
     def regexp_key(self) -> str:
         return r'"downloadAddr":"'
 
-    def _parse_data(self, script: str) -> str:
+    def _parse_data(self, script: str) -> Optional[str]:
         js = json.loads(script)
-        return js['props']['pageProps']['itemInfo']['itemStruct']['video']['downloadAddr']
+        return js.get('props', {})\
+                 .get('pageProps', {})\
+                 .get('itemInfo', {})\
+                 .get('itemStruct', {})\
+                 .get('video', {})\
+                 .get('downloadAddr')

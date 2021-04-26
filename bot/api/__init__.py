@@ -61,5 +61,5 @@ class API(ABC):
         return VideoData()
 
     @abstractmethod
-    def _parse_data(self, script: str) -> str:
+    def _parse_data(self, script: str) -> Optional[str]:
         pass

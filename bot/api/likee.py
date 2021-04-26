@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Optional
 
 from bot.api import API
 
@@ -18,6 +18,6 @@ class LikeeAPI(API):
     def regexp_key(self) -> str:
         return r'"video_url":'
 
-    def _parse_data(self, script: str) -> str:
+    def _parse_data(self, script: str) -> Optional[str]:
         js = json.loads(script.split('window.data = ')[-1][:-1])
-        return js['video_url']
+        return js.get('video_url')
