@@ -55,7 +55,7 @@ class API(ABC):
                     video = await self.client.get(link, headers=self.headers)
                     video.raise_for_status()
                     return VideoData(link, video.content)
-                return VideoData()
+        return VideoData()
 
     @abstractmethod
     def _parse_data(self, script: str) -> str:
