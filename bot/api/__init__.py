@@ -1,3 +1,4 @@
+import asyncio
 import re
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
@@ -46,15 +47,17 @@ class API(ABC):
             sentry_sdk.capture_exception(ex)
             return []
 
-    async def download_video(self, url: str) -> VideoData:
-        page = await self.client.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        if data := soup(text=re.compile(self.regexp_key)):
-            for script in data:
-                if link := self._parse_data(script):
-                    video = await self.client.get(link, headers=self.headers)
-                    video.raise_for_status()
-                    return VideoData(link, video.content)
+    async def download_video(self, url: str, retries: int = 2) -> VideoData:
+        for _ in range(retries):
+            page = await self.client.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+            if data := soup(text=re.compile(self.regexp_key)):
+                for script in data:
+                    if link := self._parse_data(script):
+                        if video := await self.client.get(link, headers=self.headers):
+                            video.raise_for_status()
+                            return VideoData(link, video.content)
+            await asyncio.sleep(0.5)
         return VideoData()
 
     @abstractmethod
