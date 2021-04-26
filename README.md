@@ -1,4 +1,4 @@
-[![TeleTok](./img/logo.jpg?raw=true)](https://t.me/shieldy_bot)
+[![TeleTok](./img/logo.jpg?raw=true)](https://t.me/TeleTockerBot)
 
 # [TeleTok](https://t.me/TeleTockerBot): Telegram bot for TikTok (and Likee)
 
