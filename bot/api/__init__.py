@@ -13,11 +13,6 @@ from bot.data import VideoData
 
 
 class API(ABC):
-    client = httpx.AsyncClient(
-        headers={
-            "User-Agent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-        }
-    )
 
     @property
     def headers(self) -> dict[str, Any]:
@@ -49,15 +44,16 @@ class API(ABC):
 
     async def download_video(self, url: str, retries: int = 2) -> VideoData:
         for _ in range(retries):
-            page = await self.client.get(url)
-            soup = BeautifulSoup(page.content, 'html.parser')
-            if data := soup(text=re.compile(self.regexp_key)):
-                for script in data:
-                    if link := self._parse_data(script):
-                        if video := await self.client.get(link, headers=self.headers):
-                            video.raise_for_status()
-                            return VideoData(link, video.content)
-            await asyncio.sleep(0.5)
+            async with httpx.AsyncClient(headers=self.headers) as client:
+                page = await client.get(url)
+                soup = BeautifulSoup(page.content, 'html.parser')
+                if data := soup(text=re.compile(self.regexp_key)):
+                    for script in data:
+                        if link := self._parse_data(script):
+                            if video := await client.get(link):
+                                video.raise_for_status()
+                                return VideoData(link, video.content)
+                await asyncio.sleep(0.5)
         return VideoData()
 
     @abstractmethod

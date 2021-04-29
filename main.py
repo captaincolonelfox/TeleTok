@@ -22,7 +22,6 @@ async def main():
     finally:
         logging.info('Exited')
         await bot.close()
-        [await platform.client.aclose() for platform in platforms]
 
 
 if __name__ == '__main__':
