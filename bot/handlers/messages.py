@@ -1,15 +1,12 @@
 import sentry_sdk
 from aiogram.types import Message
 from bot import dp, bot
-from bot.api.likee import LikeeAPI
-from bot.api.tiktok import TikTokAPI
+from bot.api import LikeeAPI, TikTokAPI
 from bot.exception import HandleException
 from settings import DOWNLOAD_ERROR
 
 
-tiktok = TikTokAPI()
-likee = LikeeAPI()
-platforms = [tiktok, likee]
+platforms = [TikTokAPI(), LikeeAPI()]
 
 
 @dp.message_handler()

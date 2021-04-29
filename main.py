@@ -4,12 +4,11 @@ import logging
 import sentry_sdk
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
-from bot import bot, dp, handlers
-from bot.handlers.messages import platforms
+from bot import bot, dp
 from settings import ENVIRONMENT, SENTRY_DSN
 
 sentry_sdk.init(
-    SENTRY_DSN,
+    dsn=SENTRY_DSN,
     environment=ENVIRONMENT,
     integrations=[AioHttpIntegration()]
 )
@@ -22,7 +21,6 @@ async def main():
     finally:
         logging.info('Exited')
         await bot.close()
-        [await platform.client.aclose() for platform in platforms]
 
 
 if __name__ == '__main__':

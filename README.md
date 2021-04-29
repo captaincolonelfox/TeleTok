@@ -2,6 +2,14 @@
 
 # [TeleTok](https://t.me/TeleTockerBot): Telegram bot for TikTok (and Likee)
 
+## Description
+
+This bot will send you a video from a TikTok. Pretty simple.
+
+Just share a link to the chat (no need to mention the bot)
+
+## Thanks to
+
 Built on top of [aiogram](https://github.com/aiogram/aiogram)
 
 # Installation
