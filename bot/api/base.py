@@ -42,7 +42,7 @@ class API(ABC):
 
     async def download_video(self, url: str, retries: int = 2) -> VideoData:
         for _ in range(retries):
-            async with httpx.AsyncClient(headers=self.headers) as client:
+            async with httpx.AsyncClient(headers=self.headers, timeout=30) as client:
                 try:
                     page = await client.get(url)
                     soup = BeautifulSoup(page.content, 'html.parser')
