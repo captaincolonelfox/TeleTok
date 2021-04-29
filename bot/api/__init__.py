@@ -34,13 +34,11 @@ class API(ABC):
             for link in self.links:
                 if link in (url := message.text[e.offset:e.offset + e.length]):
                     urls.append(url)
-        if not urls:
-            return []
         try:
             return [await self.download_video(url) for url in urls]
         except (KeyError, HTTPStatusError) as ex:
             sentry_sdk.capture_exception(ex)
-            return []
+        return []
 
     async def download_video(self, url: str, retries: int = 2) -> VideoData:
         for _ in range(retries):
