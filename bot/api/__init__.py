@@ -33,7 +33,7 @@ class API(ABC):
         for e in message.entities:
             for link in self.links:
                 if link in (url := message.text[e.offset:e.offset + e.length]):
-                    urls.append(url)
+                    urls.append(url if url.startswith('http') else f'https://{url}')
         try:
             return [await self.download_video(url) for url in urls]
         except (KeyError, HTTPStatusError) as ex:
