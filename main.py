@@ -4,7 +4,7 @@ import logging
 import sentry_sdk
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
-from bot import bot, dp
+from bot import bot, dp, handlers  # noqa
 from settings import ENVIRONMENT, SENTRY_DSN
 
 sentry_sdk.init(
