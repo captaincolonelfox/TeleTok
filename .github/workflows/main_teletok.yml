@@ -1,0 +1,51 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - teletok
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to registry
+      uses: docker/login-action@v1
+      with:
+        registry: https://index.docker.io/v1/
+        username: ${{ secrets.AzureAppService_ContainerUsername_1c195d2fbacd44a79c21dde1db0c3929 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_b9acf70299c44021b033d2fc7ca13f6b }}
+
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: ${{ secrets.AzureAppService_ContainerUsername_1c195d2fbacd44a79c21dde1db0c3929 }}/iafst/teletok:${{ github.sha }}
+        file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'teletok'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_1d5b58fe5dfd4f00ae26ab58bde9216a }}
+        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_1c195d2fbacd44a79c21dde1db0c3929 }}/iafst/teletok:${{ github.sha }}'
