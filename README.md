@@ -1,6 +1,6 @@
 [![TeleTok](./img/logo.jpg?raw=true)](https://t.me/TeleTockerBot)
 
-# [TeleTok](https://t.me/TeleTockerBot): Telegram bot for TikTok (and Likee)
+# [TeleTok](https://t.me/TeleTockerBot): Telegram bot for TikTok
 
 ## Description
 
