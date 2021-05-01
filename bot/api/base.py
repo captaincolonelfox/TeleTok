@@ -1,5 +1,6 @@
 import asyncio
 import re
+import uuid
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
@@ -20,6 +21,12 @@ class API(ABC):
             "Referer": "https://www.tiktok.com/",
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 "
                           "(KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        }
+
+    @property
+    def cookies(self) -> dict[str, Any]:
+        return {
+            'tt_webid_v2': str(uuid.uuid4())
         }
 
     @property
@@ -46,7 +53,7 @@ class API(ABC):
 
     async def download_video(self, url: str, retries: int = 2) -> VideoData:
         for _ in range(retries):
-            async with httpx.AsyncClient(headers=self.headers, timeout=30) as client:
+            async with httpx.AsyncClient(headers=self.headers, timeout=30, cookies=self.cookies) as client:
                 try:
                     page = await client.get(url)
                     soup = BeautifulSoup(page.content, 'html.parser')
