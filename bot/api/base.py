@@ -16,7 +16,11 @@ class API(ABC):
 
     @property
     def headers(self) -> dict[str, Any]:
-        return {}
+        return {
+            "Referer": "https://www.tiktok.com/",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        }
 
     @property
     @abstractmethod
