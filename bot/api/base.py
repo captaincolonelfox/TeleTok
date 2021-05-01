@@ -26,7 +26,7 @@ class API(ABC):
     @property
     def cookies(self) -> dict[str, Any]:
         return {
-            'tt_webid_v2': str(uuid.uuid4())
+            'tt_webid_v2': '1234567890123456789'
         }
 
     @property
