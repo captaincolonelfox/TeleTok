@@ -1,5 +1,5 @@
 import json
-from typing import Any, Optional
+from typing import Optional, List
 
 from bot.api import API
 
@@ -7,15 +7,7 @@ from bot.api import API
 class TikTokAPI(API):
 
     @property
-    def headers(self) -> dict[str, Any]:
-        return {
-            "Referer": "https://www.tiktok.com/",
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 "
-                          "(KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
-        }
-
-    @property
-    def links(self):
+    def links(self) -> List[str]:
         return ['tiktok.com']
 
     @property
