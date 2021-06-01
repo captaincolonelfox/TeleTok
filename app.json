@@ -1,0 +1,18 @@
+{
+  "name": "TeleTok",
+  "description": "Telegram bot to download TikTok videos ",
+  "repository": "https://github.com/captaincolonelfox/TeleTok",
+  "logo": "https://raw.githubusercontent.com/captaincolonelfox/TeleTok/dev/img/logo.jpg",
+  "keywords": ["telegram", "bot", "tiktok"],
+  "env": {
+    "ENVIRONMENT": "Heroku",
+    "API_TOKEN": {
+            "description": "API Token for your Telegram bot (take it from BotFather)",
+            "required": true
+    },
+    "SENTRY_DSN": {
+            "description": "DSN for your Sentry to catch exceptions from the code",
+            "required": false
+    }
+  }
+}
