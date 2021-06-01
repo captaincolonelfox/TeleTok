@@ -14,6 +14,10 @@ Built on top of [aiogram](https://github.com/aiogram/aiogram)
 
 # Installation
 
+## Deploy to Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Local
 
 ```bash
