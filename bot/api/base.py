@@ -53,7 +53,9 @@ class API(ABC):
 
     async def download_video(self, url: str, retries: int = 2) -> VideoData:
         for _ in range(retries):
-            async with httpx.AsyncClient(headers=self.headers, timeout=30, cookies=self.cookies) as client:
+            async with httpx.AsyncClient(
+                    headers=self.headers, timeout=30, cookies=self.cookies, follow_redirects=True
+            ) as client:
                 try:
                     page = await client.get(url)
                     soup = BeautifulSoup(page.content, 'html.parser')
@@ -65,7 +67,7 @@ class API(ABC):
                                     return VideoData(link, video.content)
                 except TimeoutException:
                     pass
-                await asyncio.sleep(0.5)
+            await asyncio.sleep(0.5)
         return VideoData()
 
     @abstractmethod
