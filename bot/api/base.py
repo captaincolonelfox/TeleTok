@@ -4,10 +4,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import Any, List
 import httpx
-import sentry_sdk
 from aiogram.types import Message
-from httpx import HTTPStatusError
-from bot.data import VideoData
 
 
 def retries(times: int):
@@ -49,20 +46,16 @@ class API(ABC):
     def regexp_key(self) -> str:
         return 'key'
 
-    async def handle_message(self, message: Message) -> List[VideoData]:
+    async def handle_message(self, message: Message) -> tuple[bytes, ...]:
         urls = []
         for e in message.entities:
             for link in self.links:
                 if link in (url := message.text[e.offset:e.offset + e.length]):
                     urls.append(url if url.startswith('http') else f'https://{url}')
-        try:
-            return [await self.download_video(url) for url in urls]
-        except (KeyError, HTTPStatusError) as ex:
-            sentry_sdk.capture_exception(ex)
-        return []
+        return tuple(filter(None, [await self.download_video(url) for url in urls]))
 
     @retries(times=2)
-    async def download_video(self, url: str) -> VideoData:
+    async def download_video(self, url: str) -> bytes:
         async with httpx.AsyncClient(headers=self.headers, timeout=30,
                                      cookies=self.cookies, follow_redirects=True) as client:
             page = await client.get(url)
@@ -70,5 +63,4 @@ class API(ABC):
                 link = link.encode('utf-8').decode('unicode_escape')
                 if video := await client.get(link):
                     video.raise_for_status()
-                    return VideoData(link, video.content)
-        return VideoData()
+                    return video.content
