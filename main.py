@@ -3,6 +3,7 @@ import logging
 
 import sentry_sdk
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from bot import bot, dp, handlers  # noqa
 from settings import ENVIRONMENT, SENTRY_DSN
@@ -10,7 +11,10 @@ from settings import ENVIRONMENT, SENTRY_DSN
 sentry_sdk.init(
     dsn=SENTRY_DSN,
     environment=ENVIRONMENT,
-    integrations=[AioHttpIntegration()]
+    integrations=[
+        AioHttpIntegration(),
+        LoggingIntegration()
+    ]
 )
 
 

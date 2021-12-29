@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import re
 from abc import ABC, abstractmethod
 from typing import Any, List
@@ -15,7 +16,8 @@ def retries(times: int):
             for _ in range(times):
                 try:
                     return await func(*args, **kwargs)
-                except Exception:
+                except Exception as ex:
+                    logging.exception(ex)
                     await asyncio.sleep(0.5)
         return wrapper
     return decorator
