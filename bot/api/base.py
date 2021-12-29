@@ -5,8 +5,20 @@ from typing import Any, List
 import httpx
 import sentry_sdk
 from aiogram.types import Message
-from httpx import HTTPStatusError, TimeoutException
+from httpx import HTTPStatusError
 from bot.data import VideoData
+
+
+def retries(times: int):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            for _ in range(times):
+                try:
+                    return await func(*args, **kwargs)
+                except Exception:
+                    await asyncio.sleep(0.5)
+        return wrapper
+    return decorator
 
 
 class API(ABC):
@@ -47,19 +59,14 @@ class API(ABC):
             sentry_sdk.capture_exception(ex)
         return []
 
-    async def download_video(self, url: str, retries: int = 2) -> VideoData:
-        for _ in range(retries):
-            try:
-                async with httpx.AsyncClient(headers=self.headers, timeout=30,
-                                             cookies=self.cookies, follow_redirects=True) as client:
-                    page = await client.get(url)
-                    for link in re.findall(self.regexp_key, page.text):
-                        link = link.encode('utf-8').decode('unicode_escape')
-                        if video := await client.get(link):
-                            video.raise_for_status()
-                            return VideoData(link, video.content)
-            except TimeoutException:
-                pass
-            await asyncio.sleep(0.5)
+    @retries(times=2)
+    async def download_video(self, url: str) -> VideoData:
+        async with httpx.AsyncClient(headers=self.headers, timeout=30,
+                                     cookies=self.cookies, follow_redirects=True) as client:
+            page = await client.get(url)
+            for link in re.findall(self.regexp_key, page.text):
+                link = link.encode('utf-8').decode('unicode_escape')
+                if video := await client.get(link):
+                    video.raise_for_status()
+                    return VideoData(link, video.content)
         return VideoData()
-
