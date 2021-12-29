@@ -1,8 +1,8 @@
-from attr import attrs, attrib
+from attr import define, field
 from typing import Optional
 
 
-@attrs(slots=True, auto_attribs=True, order=False, eq=False)
+@define
 class VideoData:
-    url: Optional[str] = attrib(default=None)
-    content: Optional[bytes] = attrib(default=None)
+    url: Optional[str] = field(default=None)
+    content: Optional[bytes] = field(default=None)
