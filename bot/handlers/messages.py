@@ -5,7 +5,7 @@ from bot.api import TikTokAPI
 
 TikTok = TikTokAPI(
     link='tiktok.com',
-    regexp_key=r'"downloadAddr":"(.*?)",',
+    regexp_key=r'"video":{"id":"(.*?)",.*?"downloadAddr":"(.*?)",.*?}',
     headers={
         "Referer": "https://www.tiktok.com/",
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 "

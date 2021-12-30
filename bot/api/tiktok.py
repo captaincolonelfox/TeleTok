@@ -37,12 +37,14 @@ class TikTokAPI:
             video = await self.download_video(url)
             yield video
 
-    @retries(times=2)
+    @retries(times=3)
     async def download_video(self, url: str) -> Optional[bytes]:
         async with httpx.AsyncClient(headers=self.headers, timeout=30,
                                      cookies=self.cookies, follow_redirects=True) as client:
             page = await client.get(url)
-            for link in re.findall(self.regexp_key, page.text):
+            tid = page.url.path.rsplit('/', 1)[-1]
+            for vid, link in re.findall(self.regexp_key, page.text):
+                if vid != tid: raise Exception("Retrying")
                 link = link.encode('utf-8').decode('unicode_escape')
                 if video := await client.get(link):
                     video.raise_for_status()
