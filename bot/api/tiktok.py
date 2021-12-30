@@ -1,24 +1,49 @@
-from typing import List
-from bot.api import API
+import asyncio
+import logging
+import re
+from typing import AsyncIterator, Optional
+import httpx
+from aiogram.types import Message
+from attr import define, field
 
 
-class TikTokAPI(API):
+def retries(times: int):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            for _ in range(times):
+                try:
+                    return await func(*args, **kwargs)
+                except Exception as ex:
+                    logging.exception(ex)
+                    await asyncio.sleep(0.5)
+        return wrapper
+    return decorator
 
-    @property
-    def links(self) -> List[str]:
-        return ['tiktok.com']
 
-    @property
-    def regexp_key(self) -> str:
-        return r'downloadAddr":"(.*?)",'
+@define
+class TikTokAPI:
+    headers: dict = field(converter=dict)
+    cookies: dict = field(converter=dict)
+    link: str = field(converter=str)
+    regexp_key: str = field(converter=str)
 
+    async def handle_message(self, message: Message) -> AsyncIterator[Optional[bytes]]:
+        entries = (message.text[e.offset:e.offset + e.length] for e in message.entities)
+        urls = map(
+            lambda u: u if u.startswith('http') else f'https://{u}',
+            filter(lambda e: self.link in e, entries)
+        )
+        for url in urls:
+            video = await self.download_video(url)
+            yield video
 
-class MobileTikTokAPI(API):
-
-    @property
-    def links(self) -> List[str]:
-        return ['vm.tiktok.com']
-
-    @property
-    def regexp_key(self) -> str:
-        return r'urls":\["(.*?)"\]'
+    @retries(times=2)
+    async def download_video(self, url: str) -> Optional[bytes]:
+        async with httpx.AsyncClient(headers=self.headers, timeout=30,
+                                     cookies=self.cookies, follow_redirects=True) as client:
+            page = await client.get(url)
+            for link in re.findall(self.regexp_key, page.text):
+                link = link.encode('utf-8').decode('unicode_escape')
+                if video := await client.get(link):
+                    video.raise_for_status()
+                    return video.content

@@ -1,2 +1,2 @@
-from .base import API
-from .tiktok import MobileTikTokAPI, TikTokAPI
+from .tiktok import TikTokAPI
+
