@@ -1,6 +1,8 @@
+from datetime import datetime
 from aiogram.types import Message
 from bot import dp, bot
 from bot.api import TikTokAPI
+from settings import USER_AGENT
 
 
 TikTok = TikTokAPI(
@@ -8,8 +10,7 @@ TikTok = TikTokAPI(
     regexp_key=r'"video":{"id":"(.*?)",.*?"downloadAddr":"(.*?)",.*?}',
     headers={
         "Referer": "https://www.tiktok.com/",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 "
-                      "(KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        "User-Agent": f"{USER_AGENT} ({datetime.now().timestamp()})",
     }, cookies={'tt_webid_v2': '1234567890123456789'},
 )
 
