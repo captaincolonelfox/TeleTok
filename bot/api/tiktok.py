@@ -27,7 +27,6 @@ def retries(times: int):
 @define
 class TikTokAPI:
     headers: dict = field(converter=dict)
-    cookies: dict = field(converter=dict)
     link: str = field(converter=str)
     regexp_key: str = field(converter=str)
 
@@ -44,7 +43,7 @@ class TikTokAPI:
     @retries(times=3)
     async def download_video(self, url: str) -> Optional[bytes]:
         async with httpx.AsyncClient(headers=self.headers, timeout=30,
-                                     cookies=self.cookies, follow_redirects=True) as client:
+                                     cookies=self._tt_webid_v2, follow_redirects=True) as client:
             page = await client.get(url, headers=self._user_agent)
             tid = page.url.path.rsplit('/', 1)[-1]
             for vid, link in re.findall(self.regexp_key, page.text):
@@ -64,3 +63,7 @@ class TikTokAPI:
                 f"({datetime.now().replace(microsecond=0).timestamp()})"
             )
         }
+
+    @property
+    def _tt_webid_v2(self):
+        return {'tt_webid_v2': f"{random.randint(10 ** 18, (10 ** 19) - 1)}"}
