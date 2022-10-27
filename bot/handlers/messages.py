@@ -1,6 +1,8 @@
+from aiogram.dispatcher.filters import IDFilter
 from aiogram.types import Message
-from bot import dp, bot
+from bot import bot, dp
 from bot.api import TikTokAPI
+from settings import USER_ID
 
 
 TikTok = TikTokAPI(
@@ -12,7 +14,14 @@ TikTok = TikTokAPI(
 )
 
 
-@dp.message_handler()
+def filter_message_handler(user_id: str):
+    if user_id:
+        return dp.message_handler(IDFilter(user_id=user_id))
+    else:
+        return dp.message_handler()
+
+
+@filter_message_handler(USER_ID)
 async def get_message(message: Message):
     async for video in TikTok.handle_message(message):
         if not video: continue
