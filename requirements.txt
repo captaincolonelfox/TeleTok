@@ -2,3 +2,4 @@ attrs==21.4.0
 httpx==0.22.0
 aiogram==2.19.0
 sentry-sdk==1.5.6
+beautifulsoup4==4.11.1

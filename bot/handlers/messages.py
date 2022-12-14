@@ -8,6 +8,7 @@ from settings import USER_ID
 TikTok = TikTokAPI(
     link='tiktok.com',
     regexp_key=r'"video":{"id":"(.*?)",.*?"downloadAddr":"(.*?)",.*?}',
+    description_selector='div[data-e2e="browse-video-desc"]',
     headers={
         "Referer": "https://www.tiktok.com/",
     }
@@ -29,11 +30,13 @@ def telegram_message_handler(user_id: str = None):
 
 @telegram_message_handler(USER_ID)
 async def get_message(message: Message):
-    async for video in TikTok.handle_message(message):
+    async for url, description, video in TikTok.handle_message(message):
         if not video:
             continue
         await bot.send_video(
             message.chat.id,
             video,
+            caption=f"{description}\n\n{url}",
+            parse_mode="Markdown",
             reply_to_message_id=message.message_id,
         )
