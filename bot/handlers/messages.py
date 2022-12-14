@@ -14,15 +14,26 @@ TikTok = TikTokAPI(
 )
 
 
-def filter_message_handler(user_id: str):
+def telegram_message_handler(user_id: str = None):
+    filters = []
     if user_id:
-        return dp.message_handler(IDFilter(user_id=user_id))
-    else:
-        return dp.message_handler()
+        filters.append(IDFilter(user_id=user_id))
+
+    def decorator(func):
+        dp.register_channel_post_handler(func, *filters)
+        dp.register_message_handler(func, *filters)
+        return func
+
+    return decorator
 
 
-@filter_message_handler(USER_ID)
+@telegram_message_handler(USER_ID)
 async def get_message(message: Message):
     async for video in TikTok.handle_message(message):
-        if not video: continue
-        await bot.send_video(message.chat.id, video, reply_to_message_id=message.message_id)
+        if not video:
+            continue
+        await bot.send_video(
+            message.chat.id,
+            video,
+            reply_to_message_id=message.message_id,
+        )
