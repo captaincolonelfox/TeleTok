@@ -1,7 +1,7 @@
 import asyncio
+import json
 import logging
 import random
-import re
 import string
 from datetime import datetime
 from functools import wraps
@@ -11,6 +11,10 @@ from aiogram.types import Message
 from attr import define, field
 from settings import USER_AGENT
 from bs4 import BeautifulSoup
+
+
+class Retrying(Exception):
+    pass
 
 
 def retries(times: int):
@@ -30,9 +34,8 @@ def retries(times: int):
 @define
 class TikTokAPI:
     headers: dict = field(converter=dict)
-    link: str = field(converter=str)
-    regexp_key: str = field(converter=str)
-    description_selector: str = field(converter=str)
+    link: str = field(default='tiktok.com', converter=str)
+    script_selector: str = field(default='script[id="SIGI_STATE"]', converter=str)
 
     async def handle_message(self, message: Message) -> AsyncIterator[tuple[str, str, bytes]]:
         entries = (message.text[e.offset:e.offset + e.length] for e in message.entities)
@@ -49,18 +52,27 @@ class TikTokAPI:
         async with httpx.AsyncClient(headers=self.headers, timeout=30,
                                      cookies=self._tt_webid_v2, follow_redirects=True) as client:
             page = await client.get(url, headers=self._user_agent)
-            tid = page.url.path.rsplit('/', 1)[-1]
-            for vid, link in re.findall(self.regexp_key, page.text):
-                if vid != tid: raise Exception("Retrying")
-                soup = BeautifulSoup(page.text, 'html.parser')
-                if div := soup.select_one(self.description_selector):
-                    title = div.text
-                else:
-                    title = ""
-                link = link.encode('utf-8').decode('unicode_escape')
+            page_id = page.url.path.rsplit('/', 1)[-1]
+
+            soup = BeautifulSoup(page.text, 'html.parser')
+
+            if script := soup.select_one(self.script_selector):
+                script = json.loads(script.text)
+            else:
+                raise Retrying("no script")
+
+            modules = tuple(script.get("ItemModule").values())
+            if not modules:
+                raise Retrying("no modules")
+
+            for data in modules:
+                if data["id"] != page_id:
+                    raise Retrying("video_id is different from page_id")
+                description = data["desc"]
+                link = data["video"]["downloadAddr"].encode('utf-8').decode('unicode_escape')
                 if video := await client.get(link, headers=self._user_agent):
                     video.raise_for_status()
-                    return title, video.content
+                    return description, video.content
 
     @property
     def _user_agent(self) -> dict:

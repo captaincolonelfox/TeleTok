@@ -4,11 +4,7 @@ from bot import bot, dp
 from bot.api import TikTokAPI
 from settings import USER_ID
 
-
 TikTok = TikTokAPI(
-    link='tiktok.com',
-    regexp_key=r'"video":{"id":"(.*?)",.*?"downloadAddr":"(.*?)",.*?}',
-    description_selector='div[data-e2e="browse-video-desc"]',
     headers={
         "Referer": "https://www.tiktok.com/",
     }
@@ -37,6 +33,5 @@ async def get_message(message: Message):
             message.chat.id,
             video,
             caption=f"{description}\n\n{url}",
-            parse_mode="Markdown",
             reply_to_message_id=message.message_id,
         )
