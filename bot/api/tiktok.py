@@ -4,6 +4,7 @@ import random
 import re
 import string
 from datetime import datetime
+from functools import wraps
 from typing import AsyncIterator
 import httpx
 from aiogram.types import Message
@@ -14,6 +15,7 @@ from bs4 import BeautifulSoup
 
 def retries(times: int):
     def decorator(func):
+        @wraps(func)
         async def wrapper(*args, **kwargs):
             for _ in range(times):
                 try:
