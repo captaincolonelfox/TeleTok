@@ -14,10 +14,6 @@ Built on top of [aiogram](https://github.com/aiogram/aiogram)
 
 # Installation
 
-## Deploy to Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
 ## Env
 
 (*REQUIRED*)
@@ -25,21 +21,18 @@ Built on top of [aiogram](https://github.com/aiogram/aiogram)
 - API_TOKEN - Bot token from BotFather 
 
 (*OPTIONAL*)
+
 - USER_ID - To give access only to specific user id (default: empty = all users)
-- SENTRY_DSN - To send unhandled exceptions to Sentry (default: empty = no reports)
-- ENVIRONMENT - Sentry environment variable (default: Local)
-- USER_AGENT - To override user-agent used to download videos (default: random every time)
 
 
 ## Local
 
 ```bash
-$ git clone https://github.com/captaincolonelfox/TeleTok
 $ python3 -m venv venv
 $ (venv) pip install -r requirements.txt
 $ (venv) echo "API_TOKEN=foo:bar" >> .env
 $ (venv) export $(cat .env)
-$ (venv) python main.py
+$ (venv) python app
 ```
 
 ## Docker
