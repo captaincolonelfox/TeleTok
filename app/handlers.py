@@ -1,8 +1,8 @@
-from aiogram.types import Message
+from aiogram.types import Message, MediaGroup, InputMediaPhoto
 
-from app.tiktok import TikTokAPI
-from app.bot import telegram_message_handler, bot
-from app.settings import USER_ID
+from tiktok import TikTokAPI, Video, Photo
+from bot import telegram_message_handler
+from settings import USER_ID
 
 
 @telegram_message_handler(USER_ID)
@@ -12,12 +12,18 @@ async def get_message(message: Message):
         u if u.startswith("http") else f"https://{u}"
         for u in filter(lambda e: "tiktok.com" in e, entries)
     ]
-    async for video in TikTokAPI.download_videos(urls):
-        if video.is_empty:
+    async for tiktok in TikTokAPI.download_tiktoks(urls):
+        if tiktok.is_empty:
             continue
-        await bot.send_video(
-            message.chat.id,
-            video.content,
-            caption=video.caption,
-            reply_to_message_id=message.message_id,
-        )
+        if isinstance(tiktok, Video):
+            await message.reply_video(tiktok.video, caption=tiktok.caption)
+        if isinstance(tiktok, Photo):
+            for photos in tiktok.get_chunks(size=10):
+                first_with_caption = [
+                    InputMediaPhoto(photos[0], caption=tiktok.caption)
+                ]
+                others_without_caption = [
+                    InputMediaPhoto(photo) for photo in photos[1:]
+                ]
+                media = MediaGroup(medias=first_with_caption + others_without_caption)
+                await message.reply_media_group(media)
