@@ -81,19 +81,19 @@ class AsyncTikTokClient(httpx.AsyncClient):
 
         soup = BeautifulSoup(page.text, "html.parser")
 
-        if script := soup.select_one('script[id="SIGI_STATE"]'):
+        if script := soup.select_one('script[id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]'):
             script = json.loads(script.text)
         else:
             raise Retrying("no script")
 
-        modules = tuple(script.get("ItemModule").values())
-        if not modules:
-            raise Retrying("no modules")
+        try:
+            data = script["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"]
+        except KeyError as ex:
+            raise Retrying("no data") from ex
 
-        for data in modules:
-            if data["id"] != page_id:
-                raise Retrying("tiktok_id is different from page_id")
-            return data
+        if data["id"] != page_id:
+            raise Retrying("tiktok_id is different from page_id")
+        return data
 
     async def get_video(self, data: dict) -> Optional[bytes]:
         link = data["video"].get("downloadAddr", "")
@@ -108,9 +108,7 @@ class AsyncTikTokClient(httpx.AsyncClient):
         return data["desc"]
 
     async def get_photos(self, data: dict) -> list[str]:
-        return [
-            photo["imageURL"]["urlList"][0] for photo in data["imagePost"]["images"]
-        ]
+        return [photo["imageURL"]["urlList"][0] for photo in data["imagePost"]["images"]]
 
 
 class TikTokAPI:
