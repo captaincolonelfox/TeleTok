@@ -55,6 +55,26 @@ class Photo(Tiktok):
             yield self.photos[n : n + size]
 
 
+@dataclass
+class ItemStruct:
+    page_id: str
+    video_url: str
+    photo_urls: list[str]
+    description: str
+
+    @classmethod
+    def parse(cls, data: dict) -> "ItemStruct":
+        return ItemStruct(
+            page_id=data["id"],
+            video_url=data["video"].get("downloadAddr", "").encode().decode("unicode_escape"),
+            photo_urls=[
+                photo["imageURL"]["urlList"][0]
+                for photo in data.get("imagePost", {}).get("images", [])
+            ],
+            description=data["desc"],
+        )
+
+
 class AsyncTikTokClient(httpx.AsyncClient):
     def __init__(self):
         super().__init__(
@@ -75,7 +95,7 @@ class AsyncTikTokClient(httpx.AsyncClient):
         )
 
     @retries(times=3)
-    async def get_page_data(self, url: str) -> dict:
+    async def get_page_data(self, url: str) -> ItemStruct:
         page = await self.get(url)
         page_id = page.url.path.rsplit("/", 1)[-1]
 
@@ -93,22 +113,13 @@ class AsyncTikTokClient(httpx.AsyncClient):
 
         if data["id"] != page_id:
             raise Retrying("tiktok_id is different from page_id")
-        return data
+        return ItemStruct.parse(data)
 
-    async def get_video(self, data: dict) -> Optional[bytes]:
-        link = data["video"].get("downloadAddr", "")
-        if not link:
-            return None
-        resp = await self.get(link.encode().decode("unicode_escape"))
+    async def get_video(self, url: str) -> Optional[bytes]:
+        resp = await self.get(url)
         if resp.is_error:
             return None
         return resp.content
-
-    async def get_description(self, data: dict) -> str:
-        return data["desc"]
-
-    async def get_photos(self, data: dict) -> list[str]:
-        return [photo["imageURL"]["urlList"][0] for photo in data["imagePost"]["images"]]
 
 
 class TikTokAPI:
@@ -122,10 +133,10 @@ class TikTokAPI:
     @classmethod
     async def download_tiktok(cls, url: str) -> Tiktok:
         async with AsyncTikTokClient() as client:
-            if data := await client.get_page_data(url=url):
-                description = await client.get_description(data=data)
-                if video := await client.get_video(data=data):
-                    return Video(url=url, description=description, video=video)
-                if photos := await client.get_photos(data=data):
-                    return Photo(url=url, description=description, photos=photos)
+            if item := await client.get_page_data(url=url):
+                if item.video_url:
+                    video = await client.get_video(url=item.video_url)
+                    return Video(url=url, description=item.description, video=video)
+                if item.photo_urls:
+                    return Photo(url=url, description=item.description, photos=item.photo_urls)
             return EmptyTiktok()
