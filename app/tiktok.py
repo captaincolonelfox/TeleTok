@@ -66,7 +66,11 @@ class ItemStruct:
     def parse(cls, data: dict) -> "ItemStruct":
         return ItemStruct(
             page_id=data["id"],
-            video_url=data["video"].get("downloadAddr", "").encode().decode("unicode_escape"),
+            video_url=(
+                (data["video"].get("playAddr", "") or data["video"].get("downloadAddr"))
+                .encode()
+                .decode("unicode_escape")
+            ),
             photo_urls=[
                 photo["imageURL"]["urlList"][0]
                 for photo in data.get("imagePost", {}).get("images", [])
