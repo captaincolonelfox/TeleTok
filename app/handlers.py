@@ -1,6 +1,7 @@
 from aiogram.types import Message, MediaGroup, InputMediaPhoto
 
-from tiktok import TikTokAPI, Video, Photo
+from tiktok.api import TikTokAPI
+from tiktok.data import Video, Photo
 from bot import telegram_message_handler
 from settings import USER_ID
 
