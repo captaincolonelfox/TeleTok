@@ -1,18 +1,17 @@
 import json
 import random
 import string
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, UTC
 
 import httpx
 from bs4 import BeautifulSoup
 
 from tiktok.data import ItemStruct
-from utils import retries, Retrying
+from utils import RetryingError, retries
 
 
 class AsyncTikTokClient(httpx.AsyncClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             headers={
                 "Referer": "https://www.tiktok.com/",
@@ -20,7 +19,7 @@ class AsyncTikTokClient(httpx.AsyncClient):
                     f"{''.join(random.choices(string.ascii_lowercase, k=random.randint(4, 10)))}-"
                     f"{''.join(random.choices(string.ascii_lowercase, k=random.randint(3, 7)))}/"
                     f"{random.randint(10, 300)} "
-                    f"({datetime.now().replace(microsecond=0).timestamp()})"
+                    f"({datetime.now(tz=UTC).replace(microsecond=0).timestamp()})"
                 ),
             },
             timeout=30,
@@ -40,18 +39,18 @@ class AsyncTikTokClient(httpx.AsyncClient):
         if script := soup.select_one('script[id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]'):
             script = json.loads(script.text)
         else:
-            raise Retrying("no script")
+            raise RetryingError("no script")
 
         try:
             data = script["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"]
         except KeyError as ex:
-            raise Retrying("no data") from ex
+            raise RetryingError("no data") from ex
 
         if data["id"] != page_id:
-            raise Retrying("tiktok_id is different from page_id")
+            raise RetryingError("tiktok_id is different from page_id")
         return ItemStruct.parse(data)
 
-    async def get_video(self, url: str) -> Optional[bytes]:
+    async def get_video(self, url: str) -> bytes | None:
         resp = await self.get(url)
         if resp.is_error:
             return None

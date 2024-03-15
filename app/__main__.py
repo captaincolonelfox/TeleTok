@@ -1,7 +1,6 @@
 import asyncio
 
 from aiogram import Bot
-
 from bot import dp
 from settings import API_TOKEN
 

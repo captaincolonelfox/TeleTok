@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 
 
-class Retrying(Exception):
+class RetryingError(Exception):
     pass
 
 
@@ -14,8 +14,8 @@ def retries(times: int):
             for _ in range(times):
                 try:
                     return await func(*args, **kwargs)
-                except Exception as ex:
-                    logging.exception(ex)
+                except RetryingError:
+                    logging.exception("Retrying")
                     await asyncio.sleep(0.5)
 
         return wrapper

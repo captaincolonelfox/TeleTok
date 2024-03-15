@@ -1,5 +1,5 @@
 from aiogram import Dispatcher, F
-from aiogram.types import Message, BufferedInputFile
+from aiogram.types import BufferedInputFile, Message
 
 from settings import USER_ID
 from tiktok.api import TikTokAPI
@@ -13,8 +13,12 @@ filters = [
 
 @dp.message(*filters)
 @dp.channel_post(*filters)
-async def handle_tiktok_request(message: Message):
-    entries = [message.text[e.offset : e.offset + e.length] for e in message.entities]
+async def handle_tiktok_request(message: Message) -> None:
+    entries = [
+        message.text[e.offset : e.offset + e.length]
+        for e in message.entities or []
+        if message.text is not None
+    ]
     urls = [
         u if u.startswith("http") else f"https://{u}"
         for u in filter(lambda e: "tiktok.com" in e, entries)
