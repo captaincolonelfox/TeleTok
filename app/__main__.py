@@ -2,7 +2,7 @@ import asyncio
 
 from aiogram import Bot
 
-from bot import dp, get_message
+from bot import dp
 from settings import API_TOKEN
 
 

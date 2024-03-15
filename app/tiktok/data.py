@@ -1,15 +1,15 @@
-from dataclasses import dataclass, field
-from typing import Optional, Generator
+from dataclasses import dataclass
 
 
 @dataclass
 class Tiktok:
     url: str = ""
     description: str = ""
+    video: bytes | None = None
 
     @property
     def is_empty(self) -> bool:
-        raise NotImplementedError
+        return not self.video
 
     @property
     def caption(self) -> str:
@@ -17,39 +17,9 @@ class Tiktok:
 
 
 @dataclass
-class EmptyTiktok(Tiktok):
-    @property
-    def is_empty(self) -> bool:
-        return True
-
-
-@dataclass(repr=False)
-class Video(Tiktok):
-    video: Optional[bytes] = None
-
-    @property
-    def is_empty(self) -> bool:
-        return not self.video
-
-
-@dataclass
-class Photo(Tiktok):
-    photos: list[str] = field(default_factory=list)
-
-    @property
-    def is_empty(self) -> bool:
-        return not self.photos
-
-    def get_chunks(self, size: int) -> Generator[str, None, None]:
-        for n in range(0, len(self.photos), size):
-            yield self.photos[n : n + size]
-
-
-@dataclass
 class ItemStruct:
     page_id: str
     video_url: str
-    photo_urls: list[str]
     description: str
 
     @classmethod
@@ -61,9 +31,5 @@ class ItemStruct:
                 .encode()
                 .decode("unicode_escape")
             ),
-            photo_urls=[
-                photo["imageURL"]["urlList"][0]
-                for photo in data.get("imagePost", {}).get("images", [])
-            ],
             description=data["desc"],
         )
