@@ -22,8 +22,7 @@ Built on top of [aiogram](https://github.com/aiogram/aiogram)
 
 (*OPTIONAL*)
 
-- USER_ID - To give access only to specific user id (default: empty = all users)
-
+- ALLOWED_IDS - JSON int list. To give access only to specific user/chat id (default: empty list = all users/chats)
 
 ## Local
 
@@ -42,6 +41,12 @@ $ docker build -t teletok .
 $ docker run -e "API_TOKEN=foo:bar" teletok
 ```
 
+## Compose
+
+```bash
+$ echo "API_TOKEN=foo:bar" >> .env
+$ docker compose up -d --build
+```
 
 # License
 MIT

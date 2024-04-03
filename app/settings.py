@@ -1,4 +1,8 @@
+import json
 import os
+from typing import List
 
-API_TOKEN = os.getenv("API_TOKEN")
-USER_ID = int(user_id) if (user_id := os.getenv("USER_ID")) else None
+API_TOKEN: str = os.getenv("API_TOKEN")
+ALLOWED_IDS: List[int] = json.loads(allowed_ids_raw) if (
+    allowed_ids_raw := os.getenv("ALLOWED_IDS")
+) else []

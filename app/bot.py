@@ -1,13 +1,16 @@
 from aiogram import Dispatcher, F
 from aiogram.types import BufferedInputFile, Message
 
-from settings import USER_ID
+from settings import ALLOWED_IDS
 from tiktok.api import TikTokAPI
 
 dp = Dispatcher()
+
 filters = [
     F.text.contains("tiktok.com"),
-    (USER_ID is None) | (F.from_user.id == USER_ID),
+    (not ALLOWED_IDS)
+    | F.chat.id.in_(ALLOWED_IDS)
+    | F.from_user.id.in_(ALLOWED_IDS)
 ]
 
 
@@ -15,7 +18,7 @@ filters = [
 @dp.channel_post(*filters)
 async def handle_tiktok_request(message: Message) -> None:
     entries = [
-        message.text[e.offset : e.offset + e.length]
+        message.text[e.offset: e.offset + e.length]
         for e in message.entities or []
         if message.text is not None
     ]

@@ -1,0 +1,5 @@
+services:
+  worker:
+    build: .
+    env_file:
+      - .env
