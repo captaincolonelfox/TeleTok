@@ -43,7 +43,7 @@ $ docker build -t teletok .
 $ docker run -e "API_TOKEN=foo:bar" teletok
 ```
 
-## Compose
+## Docker Compose
 
 ```bash
 $ echo "API_TOKEN=foo:bar" >> .env

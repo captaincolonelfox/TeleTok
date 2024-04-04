@@ -1,5 +1,5 @@
 services:
-  worker:
+  teletok:
     build: .
     env_file:
       - .env
