@@ -1,24 +1,24 @@
 from aiogram import Dispatcher, F, Bot
 from aiogram.types import BufferedInputFile, Message
 
-from settings import *
+from settings import settings
 from tiktok.api import TikTokAPI
 
 dp = Dispatcher()
-bot = Bot(token=API_TOKEN)
 
 filters = [
     F.text.contains("tiktok.com"),
-    (not ALLOWED_IDS)
-    | F.chat.id.in_(ALLOWED_IDS)
-    | F.from_user.id.in_(ALLOWED_IDS)
+    (not settings.ALLOWED_IDS)
+    | F.chat.id.in_(settings.ALLOWED_IDS)
+    | F.from_user.id.in_(settings.ALLOWED_IDS),
 ]
+
 
 @dp.message(*filters)
 @dp.channel_post(*filters)
-async def handle_tiktok_request(message: Message) -> None:
+async def handle_tiktok_request(message: Message, bot: Bot) -> None:
     entries = [
-        message.text[e.offset: e.offset + e.length]
+        message.text[e.offset : e.offset + e.length]
         for e in message.entities or []
         if message.text is not None
     ]
@@ -33,9 +33,9 @@ async def handle_tiktok_request(message: Message) -> None:
             continue
 
         video = BufferedInputFile(tiktok.video, filename="video.mp4")
-        caption = tiktok.caption if WITH_CAPTIONS else None
+        caption = tiktok.caption if settings.with_captions else None
 
-        if REPLY_TO_MESSAGE:
+        if settings.reply_to_message:
             await message.reply_video(video=video, caption=caption)
         else:
             await bot.send_video(chat_id=message.chat.id, video=video, caption=caption)
