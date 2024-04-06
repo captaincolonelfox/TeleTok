@@ -8,9 +8,9 @@ dp = Dispatcher()
 
 filters = [
     F.text.contains("tiktok.com"),
-    (not settings.ALLOWED_IDS)
-    | F.chat.id.in_(settings.ALLOWED_IDS)
-    | F.from_user.id.in_(settings.ALLOWED_IDS),
+    (not settings.allowed_ids)
+    | F.chat.id.in_(settings.allowed_ids)
+    | F.from_user.id.in_(settings.allowed_ids),
 ]
 
 
