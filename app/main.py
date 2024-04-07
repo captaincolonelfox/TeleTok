@@ -2,8 +2,8 @@ import asyncio
 
 from aiogram import Bot
 
-from settings import settings
 from bot import dp
+from settings import settings
 
 
 async def start() -> None:

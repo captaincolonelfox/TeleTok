@@ -1,4 +1,4 @@
-[![TeleTok](./img/logo.jpg?raw=true)](https://t.me/TeleTockerBot)
+[![TeleTok](logo.jpg?raw=true)](https://t.me/TeleTockerBot)
 
 # [TeleTok](https://t.me/TeleTockerBot): Telegram bot for TikTok
 
@@ -18,11 +18,12 @@ Built on top of [aiogram](https://github.com/aiogram/aiogram)
 
 (*REQUIRED*)
 
-- API_TOKEN - Bot token from BotFather 
+- `API_TOKEN` - Bot token from BotFather
 
 (*OPTIONAL*)
 
-- `ALLOWED_IDS` - _JSON int list_. Gives access only to specific user/chat id (default: `[]` (empty list) = all users/chats)
+- `ALLOWED_IDS` - _JSON int list_. Gives access only to specific user/chat id (default: `[]` (empty list) = all
+  users/chats)
 - `REPLY_TO_MESSAGE` - _JSON Boolean_. Whether the bot should reply to source message or not (default: `true`)
 - `WITH_CAPTIONS` - _JSON Boolean_. Whether the bot should include captions from TikTok in its message (default: `true`)
 
@@ -51,5 +52,6 @@ $ docker compose up -d --build
 ```
 
 # License
+
 MIT
 
