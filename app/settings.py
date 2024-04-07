@@ -12,7 +12,7 @@ class Settings:
 
 
 def parse_env_list(key: str) -> list[int]:
-    return json.loads(os.getenv(key, "[]"))
+    return list(map(int, json.loads(os.getenv(key, "[]"))))
 
 
 def parse_env_bool(key: str, default: str = "false") -> bool:

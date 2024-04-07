@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncIterable
+from collections.abc import AsyncIterable
 
 from tiktok.client import AsyncTikTokClient
 from tiktok.data import Tiktok

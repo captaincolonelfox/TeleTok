@@ -8,10 +8,6 @@ class Tiktok:
     video: bytes | None = None
 
     @property
-    def is_empty(self) -> bool:
-        return not self.video
-
-    @property
     def caption(self) -> str:
         return f"{self.description}\n\n{self.url}"
 

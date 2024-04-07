@@ -1,13 +1,13 @@
 import json
 import random
 import string
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 import httpx
 from bs4 import BeautifulSoup
 
 from tiktok.data import ItemStruct
-from utils import RetryingError, retries
+from utils import DifferentPageError, NoDataError, NoScriptError, retries
 
 
 class AsyncTikTokClient(httpx.AsyncClient):
@@ -39,15 +39,15 @@ class AsyncTikTokClient(httpx.AsyncClient):
         if script := soup.select_one('script[id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]'):
             script = json.loads(script.text)
         else:
-            raise RetryingError("no script")
+            raise NoScriptError
 
         try:
             data = script["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"]
         except KeyError as ex:
-            raise RetryingError("no data") from ex
+            raise NoDataError from ex
 
         if data["id"] != page_id:
-            raise RetryingError("tiktok_id is different from page_id")
+            raise DifferentPageError
         return ItemStruct.parse(data)
 
     async def get_video(self, url: str) -> bytes | None:

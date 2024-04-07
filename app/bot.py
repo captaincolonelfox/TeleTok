@@ -1,4 +1,4 @@
-from aiogram import Dispatcher, F, Bot
+from aiogram import Bot, Dispatcher, F
 from aiogram.types import BufferedInputFile, Message
 
 from settings import settings
@@ -29,7 +29,7 @@ async def handle_tiktok_request(message: Message, bot: Bot) -> None:
     ]
 
     async for tiktok in TikTokAPI.download_tiktoks(urls):
-        if tiktok.is_empty:
+        if not tiktok.video:
             continue
 
         video = BufferedInputFile(tiktok.video, filename="video.mp4")
