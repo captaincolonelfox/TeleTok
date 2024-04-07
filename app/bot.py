@@ -1,32 +1,41 @@
-from aiogram import Dispatcher, F
+from aiogram import Dispatcher, F, Bot
 from aiogram.types import BufferedInputFile, Message
 
-from settings import USER_ID
+from settings import settings
 from tiktok.api import TikTokAPI
 
 dp = Dispatcher()
+
 filters = [
     F.text.contains("tiktok.com"),
-    (USER_ID is None) | (F.from_user.id == USER_ID),
+    (not settings.allowed_ids)
+    | F.chat.id.in_(settings.allowed_ids)
+    | F.from_user.id.in_(settings.allowed_ids),
 ]
 
 
 @dp.message(*filters)
 @dp.channel_post(*filters)
-async def handle_tiktok_request(message: Message) -> None:
+async def handle_tiktok_request(message: Message, bot: Bot) -> None:
     entries = [
         message.text[e.offset : e.offset + e.length]
         for e in message.entities or []
         if message.text is not None
     ]
+
     urls = [
         u if u.startswith("http") else f"https://{u}"
         for u in filter(lambda e: "tiktok.com" in e, entries)
     ]
+
     async for tiktok in TikTokAPI.download_tiktoks(urls):
         if tiktok.is_empty:
             continue
-        await message.reply_video(
-            video=BufferedInputFile(tiktok.video, filename="video.mp4"),
-            caption=tiktok.caption,
-        )
+
+        video = BufferedInputFile(tiktok.video, filename="video.mp4")
+        caption = tiktok.caption if settings.with_captions else None
+
+        if settings.reply_to_message:
+            await message.reply_video(video=video, caption=caption)
+        else:
+            await bot.send_video(chat_id=message.chat.id, video=video, caption=caption)

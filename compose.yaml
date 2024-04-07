@@ -1,0 +1,5 @@
+services:
+  teletok:
+    build: .
+    env_file:
+      - .env

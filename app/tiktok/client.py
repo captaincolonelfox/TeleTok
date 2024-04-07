@@ -42,7 +42,9 @@ class AsyncTikTokClient(httpx.AsyncClient):
             raise RetryingError("no script")
 
         try:
-            data = script["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"]
+            data = script["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"][
+                "itemStruct"
+            ]
         except KeyError as ex:
             raise RetryingError("no data") from ex
 

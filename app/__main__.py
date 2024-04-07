@@ -1,12 +1,13 @@
 import asyncio
 
 from aiogram import Bot
+
+from settings import settings
 from bot import dp
-from settings import API_TOKEN
 
 
 async def start() -> None:
-    bot = Bot(token=API_TOKEN)
+    bot = Bot(token=settings.api_token)
     await dp.start_polling(bot)
 
 
