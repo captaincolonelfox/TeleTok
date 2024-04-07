@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 import json
 import os
+from dataclasses import dataclass
 
 
 @dataclass
@@ -22,6 +22,6 @@ def parse_env_bool(key: str) -> bool:
 settings = Settings(
     api_token=os.getenv("API_TOKEN", ""),
     allowed_ids=parse_env_list("ALLOWED_IDS"),
-    reply_to_message=parse_env_bool("REPLY_WITH_MESSAGE"),
+    reply_to_message=parse_env_bool("REPLY_TO_MESSAGE"),
     with_captions=parse_env_bool("WITH_CAPTIONS"),
 )
