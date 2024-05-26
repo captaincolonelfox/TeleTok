@@ -26,12 +26,13 @@ Built on top of [aiogram](https://github.com/aiogram/aiogram)
   users/chats)
 - `REPLY_TO_MESSAGE` - _JSON Boolean_. Whether the bot should reply to source message or not (default: `true`)
 - `WITH_CAPTIONS` - _JSON Boolean_. Whether the bot should include captions from TikTok in its message (default: `true`)
+- `PROXY` - _JSON String_. An HTTP proxy URL (default: ``)
 
 ## Local
 
 ```bash
 $ python3 -m venv venv
-$ (venv) pip install -r requirements.txt
+$ (venv) pip install .
 $ (venv) echo "API_TOKEN=foo:bar" >> .env
 $ (venv) export $(cat .env)
 $ (venv) python app

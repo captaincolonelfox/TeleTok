@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import httpx
 from bs4 import BeautifulSoup
 
+from settings import settings
 from tiktok.data import ItemStruct
 from utils import DifferentPageError, NoDataError, NoScriptError, retries
 
@@ -27,6 +28,7 @@ class AsyncTikTokClient(httpx.AsyncClient):
                 "tt_webid_v2": f"{random.randint(10 ** 18, (10 ** 19) - 1)}",
             },
             follow_redirects=True,
+            proxy=settings.proxy,
         )
 
     @retries(times=3)
